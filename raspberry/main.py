@@ -19,21 +19,21 @@ Coinbase_WebSocket.send(json.dumps({"type": "subscribe", "product_ids": ["ETH-US
 
 while True:
 
+    if (Datetime.Current_Time.second == 0):
+        Sense_Hat.clear(0, 0, 0)
+        Seconds = Initialize_Array()
+
+    Index = Datetime.Current_Time.second
+    Sum = Seconds[Index][1]
+
+    Row = Index % 8
+    Column = Index // 8
+
     ETH_Data = json.loads(Coinbase_WebSocket.recv())
 
     if "match" in ETH_Data["type"]:
-        if (Datetime.Current_Time.second == 0):
-            Sense_Hat.clear(0, 0, 0)
-            Seconds = Initialize_Array()
 
-        Index = Datetime.Current_Time.second
-        Sum = Seconds[Index][1]
         Sum += float(ETH_Data["size"])
 
-        Row = Index % 8
-        Column = Index // 8
-
-        Sense_Hat_Pixel.Pixel_Color = Sum
-        Sense_Hat.set_pixel(Row, Column, Sense_Hat_Pixel.Pixel_Color)
-    else:
-        pass
+    Sense_Hat_Pixel.Pixel_Color = Sum
+    Sense_Hat.set_pixel(Row, Column, Sense_Hat_Pixel.Pixel_Color)
