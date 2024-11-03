@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-import json
+from query import Calculate_Sum
 
 app = FastAPI()
 
@@ -16,7 +16,4 @@ Router = APIRouter()
 
 @app.get("/")
 def table():
-        with open('data.json') as File:
-            Data = json.load(File)
-
-        return Data
+    return {"Data": Calculate_Sum()}
