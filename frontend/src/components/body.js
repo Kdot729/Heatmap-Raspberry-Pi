@@ -4,20 +4,14 @@ import { useFetch } from '../scripts/fetch';
 
 const Body = () =>
 {
-    const Data = useFetch()
-    const Elements = []
-    for (const [key, value] of Object.entries(Data))
-    {
-        if (value[0] != 0)
-        {
-            Elements.push(<Row Second={key} Sum={value[0]} Color={value[1]}/>)
-        }
-    }
+    const Data = useFetch()["Data"]
 
-    return  Data !== "stop" ? <tbody>
-                    {Elements}
-                </tbody> : <div>Program on hold, too much memory being used.</div>
-
+    return  <tbody>{
+            Data ? Data.map((Entry) =>
+            {
+                return <Row Second={Entry["_id"]["datetime"]} Sum={Entry["sum"]} Color={Entry["color"]}/>
+            }) : <div>No data</div>}
+            </tbody>
 }
 
 export default Body
