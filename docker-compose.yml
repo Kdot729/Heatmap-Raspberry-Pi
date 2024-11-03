@@ -1,0 +1,40 @@
+services:
+    mongo:
+        image: mongo:latest
+        container_name: coinbase_mongo
+        hostname: coinbase_mongodb
+        environment:
+            MONGO_INITDB_DATABASE: coinbase
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+        ports:
+            - 27017:27017
+        volumes:
+            - mongodb_data:/data/db
+        command: mongod --quiet --logpath /dev/null 
+    socket:
+        container_name: coinbase_websocket
+        build:
+            context: ./socket
+        command: python3 main.py
+        depends_on:
+            - mongo
+    api:
+        container_name: coinbase_api
+        ports:
+            - 8000:8000
+        build:
+            context: ./backend
+        command: fastapi run main.py --port 8000
+        depends_on:
+            - mongo
+            - socket
+    frontend:
+      container_name: react
+      ports:
+        - 3000:3000
+      build:
+        context: ./frontend
+      command: serve -s -l 3000 ./build
+volumes:
+    mongodb_data:
