@@ -18,6 +18,7 @@ mdurl==0.1.2
 pydantic==2.9.2
 pydantic_core==2.23.4
 Pygments==2.18.0
+pymongo==4.10.1
 python-dotenv==1.0.1
 python-multipart==0.0.12
 PyYAML==6.0.2
@@ -30,5 +31,3 @@ typing_extensions==4.12.2
 uvicorn==0.32.0
 uvloop==0.21.0
 watchfiles==0.24.0
-websocket-client==1.8.0
-websockets==13.1
