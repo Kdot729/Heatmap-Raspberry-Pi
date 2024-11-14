@@ -32,7 +32,7 @@ def Calculate_Sum():
                 },
                 {
                     "$group":
-                    {"_id": {"datetime": {"$dateTrunc": {"date": "$datetime", "unit": "second","binSize": 2}}},
+                    {"_id": {"datetime": {"$dateTrunc": {"date": "$datetime", "unit": "second","binSize": 1}}},
                         "sum": {"$sum": "$size"}
                     }
                 },
