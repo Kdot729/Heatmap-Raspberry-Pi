@@ -72,6 +72,31 @@ resource "google_compute_firewall" "allow_fastapi" {
     description   = "Allow inbound traffic on port 8000 (FastAPI)"
 }
 
+resource "google_bigtable_instance" "bigtable_instance" {
+    name          = "bigtable-instance"
+    project       = var.project
+
+    cluster {
+        cluster_id   = "bigtable-cluster"
+        zone         = var.zone
+        num_nodes    = 1
+        storage_type = "SSD"
+    }
+
+    deletion_protection = false
+}
+
+resource "google_bigtable_table" "coinbase_table" {
+    project       = var.project
+    name          = "coinbase"
+    instance_name = google_bigtable_instance.bigtable_instance.name
+
+    column_family {
+        family = "eth"
+    }
+
+}
+
 output "public_ip" {
     value = google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip
 }
