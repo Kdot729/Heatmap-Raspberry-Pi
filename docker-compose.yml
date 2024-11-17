@@ -48,6 +48,18 @@ services:
       build:
         context: ./frontend
       command: serve -s -l 3000 ./build
+    bigtable:
+      build:
+        context: ./cloud_database
+      container_name: coinbase_bigtable
+      depends_on:
+        - mongo
+        - socket
+      command: /wait-for-it.sh coinbase_mongodb:27017 --timeout=30 -- python3 insert.py
+      networks:
+            - coinbase_network
+      environment:
+        <<: *mongo-environment
 volumes:
     mongodb_data:
 networks:
