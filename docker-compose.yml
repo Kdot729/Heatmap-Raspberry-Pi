@@ -1,3 +1,6 @@
+x-common-environment: &mongo-environment
+  MONGO_URI: mongodb://root:example@coinbase_mongodb:27017/?authSource=admin
+
 services:
     mongo:
         build:
@@ -12,7 +15,7 @@ services:
             - 27017:27017
         volumes:
             - mongodb_data:/data/db
-        command: mongod --quiet --logpath /dev/null &
+        command: mongod --quiet --bind_ip 0.0.0.0 --logpath /dev/null
         networks:
             - coinbase_network
     socket:
@@ -24,6 +27,8 @@ services:
             - mongo
         networks:
             - coinbase_network
+        environment:
+          <<: *mongo-environment
     api:
         container_name: coinbase_api
         ports:
