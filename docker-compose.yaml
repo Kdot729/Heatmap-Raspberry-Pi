@@ -34,7 +34,7 @@ services:
         ports:
             - 8000:8000
         build:
-            context: ./backend
+            context: ./api
         command: fastapi run main.py --port 8000
         depends_on:
             - mongo
