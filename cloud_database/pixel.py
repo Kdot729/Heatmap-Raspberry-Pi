@@ -18,7 +18,7 @@ class Pixel:
 
     @property
     def Pixel_Color(self) -> tuple[int, int, int]: 
-         return self._Pixel_Color
+        return self._Pixel_Color
     
     @Pixel_Color.setter 
     def Pixel_Color(self, Sum):
