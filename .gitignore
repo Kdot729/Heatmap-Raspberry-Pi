@@ -196,3 +196,5 @@ override.tf.json
 .terraformrc
 terraform.rc
 IaC/*.json
+api/*.json
+cloud_database/*.json
