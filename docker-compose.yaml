@@ -39,6 +39,7 @@ services:
         depends_on:
             - mongo
             - socket
+            - bigtable
         networks:
           - coinbase_network
     frontend:
