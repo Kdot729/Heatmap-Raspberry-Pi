@@ -23,19 +23,19 @@ class Pixel:
     @Pixel_Color.setter 
     def Pixel_Color(self, Sum):
 
-        if (Sum >= 0.0) and (Sum <= 0.15):
+        if (Sum >= 0.0) and (Sum <= 2):
             Color = self.Red
-        elif (Sum > 0.15) and (Sum <= 0.30):
+        elif (Sum > 2) and (Sum <= 4):
             Color = self.Orange
-        elif (Sum > 0.30) and (Sum <= 0.45):
+        elif (Sum > 4) and (Sum <= 6):
             Color = self.Yellow
-        elif (Sum > 0.45) and (Sum <= 0.60):
+        elif (Sum > 6) and (Sum <= 8):
             Color = self.Green
-        elif (Sum > 0.75) and (Sum <= 0.90):
+        elif (Sum > 8) and (Sum <= 10):
             Color = self.Blue
-        elif (Sum > 0.90) and (Sum <= 1.05):
+        elif (Sum > 10) and (Sum <= 12):
             Color = self.Indigo
-        elif (Sum > 1.05) and (Sum <= 1.20):
+        elif (Sum > 12) and (Sum <= 14):
             Color = self.Violet
         else:
             Color = self.White
