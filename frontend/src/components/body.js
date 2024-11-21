@@ -9,7 +9,7 @@ const Body = () =>
     return  <tbody>{
             Data ? Data.map((Entry) =>
             {
-                return <Row Second={Entry["_id"]["datetime"]} Sum={Entry["sum"]} Color={Entry["color"]}/>
+                return <Row Second={Entry["datetime"]} Sum={Entry["sum"]} Color={Entry["color"]}/>
             }) : <div>No data</div>}
             </tbody>
 }
