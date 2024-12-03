@@ -1,39 +1,70 @@
-import json, numpy
 from sense_hat import SenseHat
-from websocket import create_connection
-from format_datetime import Format_Datetime
-from pixel import Pixel
-
-def Initialize_Array():
-    return numpy.array([[i, 0] for i in range(0, 60)])
+from google.cloud import bigtable
+from datetime import datetime, timedelta, timezone
 
 Sense_Hat = SenseHat()
-Sense_Hat_Pixel = Pixel()
-Datetime = Format_Datetime()
 
-Seconds = Initialize_Array()
-Sense_Hat.clear()
+def Rounding_Down_to_Nearest_Minute() -> datetime:
 
-Coinbase_WebSocket = create_connection("wss://ws-feed.exchange.coinbase.com")
-Coinbase_WebSocket.send(json.dumps({"type": "subscribe", "product_ids": ["ETH-USD"], "channels": ["matches"]}))
+    Seconds = 60
+    DateTime = Get_Current_Time()
+    DateTime_Seconds = DateTime.second
 
+    return datetime.strptime((DateTime - timedelta(seconds=(Seconds + DateTime_Seconds) % Seconds)).strftime("%Y-%m-%d %H:%M"), "%Y-%m-%d %H:%M")
+
+def Get_Current_Time() -> datetime:
+    return datetime.now(timezone.utc)
+
+Project_ID = "terraform-441517"
+BigTable_Instance_ID = "bigtable-instance"
+Zone = "us-central1-a"
+
+BigTable_Client = bigtable.Client(project=Project_ID, admin=True)
+BigTable_Instance = BigTable_Client.instance(BigTable_Instance_ID)
+
+Table_ID = "coinbase"
+Table = BigTable_Instance.table(Table_ID)
+
+Last_Time_Run = None
 while True:
 
-    if (Datetime.Current_Time.second == 0):
-        Sense_Hat.clear(0, 0, 0)
-        Seconds = Initialize_Array()
+    Current_Time = Get_Current_Time()
 
-    Index = Datetime.Current_Time.second
-    Sum = Seconds[Index][1]
+    # Run once every new minute, querying the previous minute's data 
+    if Last_Time_Run is None or Current_Time.minute != Last_Time_Run.minute:
+        Sense_Hat.clear()
+        Last_Time_Run = Current_Time
 
-    Row = Index % 8
-    Column = Index // 8
+        Round_Down_DateTime = Rounding_Down_to_Nearest_Minute()
+        GTE_Datetime = Round_Down_DateTime - timedelta(seconds=60)
+        LT_Datetime = Round_Down_DateTime - timedelta(seconds=1)
 
-    ETH_Data = json.loads(Coinbase_WebSocket.recv())
+        Unix_Start_Date = str(GTE_Datetime.timestamp())
+        Unix_End_Date = str(LT_Datetime.timestamp())
 
-    if "match" in ETH_Data["type"]:
+        # Query the table in between the dates (inclusive)
+        Rows = Table.read_rows(start_key=Unix_Start_Date, end_key=Unix_End_Date)
 
-        Sum += float(ETH_Data["size"])
+        Rows = Table.read_rows()
 
-    Sense_Hat_Pixel.Pixel_Color = Sum
-    Sense_Hat.set_pixel(Row, Column, Sense_Hat_Pixel.Pixel_Color)
+        for Row in Rows:
+            Row_Key = Row.row_key.decode('utf-8')
+            Timestamp = float(Row_Key)
+
+            # Converting Unix timestamp to a datetime object
+            DateTime = datetime.fromtimestamp(Timestamp)
+
+            Row_Pixel = DateTime.second % 8
+            Column_Pixel = DateTime.second // 8
+
+            Cells = Row.cells
+
+            for Column_Family_ID, Columns in Cells.items():
+                for Column, Cell_List in Columns.items():
+                    for Cell in Cell_List:
+                        Column = Column.decode('utf-8') 
+                        Value = Cell.value.decode('utf-8')
+
+                        if Column == "color":
+                            RGB_Values = tuple(map(int, Value.split(',')))
+                            Sense_Hat.set_pixel(Row_Pixel, Column_Pixel, RGB_Values)
